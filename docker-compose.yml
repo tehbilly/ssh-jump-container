@@ -1,0 +1,7 @@
+version: '2'
+services:
+  jump:
+    build: .
+    image: "pl-val/ssh-jump-container"
+    container_name: "ssh-jump-container"
+    ports: ["3033:57575"]
