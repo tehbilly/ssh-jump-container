@@ -8,7 +8,19 @@ elif [ "$1" = 'butterfly.server.py' ]; then
   set -- butterfly.server.py --unsecure --host=0.0.0.0 --port=${PORT:-57575} "$@"
 fi
 
-# Set password
-#echo "visitor:${PASSWORD:-password}" | chpasswd
+# Set password if provided
+# echo "visitor:${PASSWORD:-password}" | chpasswd
+
+# Generate a key if one doesn't already exist
+if [ ! -f "/home/visitor/.ssh/id_rsa" ]; then
+  mkdir -p /home/visitor/.ssh
+  # If $PASSWORD is something, that will be the passphrase for the key
+  ssh-keygen -t rsa -f /home/visitor/.ssh/id_rsa -N "${PASSWORD}" -C "visitor@$(hostname)"
+  chown -R visitor:visitor /home/visitor/.ssh
+  find /home/visitor/.ssh -type f -exec chmod 600 {} \;
+fi
+
+pubkey=$(cat /home/visitor/.ssh/id_rsa.pub)
+echo "Public key for SSH: ${pubkey}"
 
 sudo -u visitor "$@"
